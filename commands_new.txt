@@ -1,0 +1,142 @@
+wpПоиск слова (фразы)
+grep -rl 'слово_поиска' папка_где_ищем/
+grep -R 'слово_поиска' папка_где_ищем/ --color
+
+Заливка резервной копии в базу:
+mysql -u'имя_пользователя_базы_данных' 'имя_базы_данных' -p'пароль_от_базы данных' < 'файл_базы_данных'.sql - закача из файла
+zcat dump-.sql.gz > dump.sql - пример преобразования архива в файл бд
+zcat dump-.sql.gz | mysql -u'имя_пользователя_базы_данных' 'имя_базы_данных' -p'пароль_от_базы данных' - все в одну строку
+
+Чтобы вывести все файлы в каталоге `/usr/local', модифицированные в течение последних 24 часов, введите:
+find /usr/local -mtime -1 
+
+Чтобы вывести все файлы в Вашем домашнем каталоге, модифицированные вчера, введите:
+find ~ -mtime 1 -daystart
+
+Чтобы вывести все файлы в каталоге `/usr', модифицированные в течение года, введите:
+find /usr -mtime +356 -daystart
+
+Чтобы вывести все файлы в Вашем домашнем каталоге, модифицированные в период от 2 до 4 дней тому назад, наберите:
+find ~ -mtime 2 -mtime -4 -daystart
+
+BOM-сигнатура
+find -type f -print0 | xargs -0 grep -l `printf '^\xef\xbb\xbf'`| grep php | sed 's/^/found BOM in: /'
+grep -rl $'\xEF\xBB\xBF' .
+find . -type f -exec sed '1s/^\xEF\xBB\xBF//' -i.bak {} \; -exec rm {}.bak \; - найдет и исключит bom
+
+
+Перенос файлов сайта при доступном FTP
+mc cd ftp://логин:пароль@хост
+wget -mc --ftp-user=___________ --ftp-password=___________ -o ./wget-_____.log ftp://_____________ --restrict-file-names=nocontrol &
+
+wget -mc --ftp-user='____________-' --ftp-password='_________'--output-file=wget.log --limit-rate=512k ftp://__________________ --restrict-file-names=nocontrol &
+
+rsync -rptv --bwlimit=speed user@host:/path/ .
+
+
+Перенос базы данных без SSH:
+mysqldump -h"______________" -u"_________" _______ -p"_________" > __________.sql 
+добавить опцию  --single-transaction=TRUE , если есть заблокированные таблицы
+
+
+Проверка на переодическое отобрпажение заглушки с сервера 
+for i in `seq 1 10`; do curl __________ -I ; sleep 2; done | grep 'error_domain' - c
+
+тест почты
+<? var_dump(mail("test@test.ru", "test", "test")); ?>
+php -r 'var_dump(mail("test@test.ru", "test", "test"));'
+
+
+find /var/spool/asterisk/monitor -mtime +90 -exec rm {} \;
+find выполнит команду указанную в параметре exec, для каждого файла чье содержимое не менялось последние mtime суток. Т.е. в данном примере файлы записанные более 90 суток назад — будут удалены.
+
+
+Создание пары HTTP авторизации
+~$ htpasswd -cbd htpasswd логин пароль >> /путь/к/.htpasswd
+пароль >= 8 символов
+
+ для выборки IP из файла 
+cat secure | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sort  | uniq -c
+cat secure | grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"  | sort | uniq -c
+
+
+узнать ip для дальнейшей пересылки, скрытая часть скрипта
+ifconfig | grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"| egrep -v "0.0.0.0|127.*"| egrep -v "255.*"| uniq
+
+
+????
+mysql> show variables like 'query_cache%';
+
+Смена даты файла
+touch -t 201609151719.00 .htaccess
+
+Подтираем за собой
+history -c && exit
+
+Генерация хеш-пароля md5
+echo -n 'cfkmnjhjk21' | md5sum
+
+
+Архивация 
+tar cf имя_архива.tar имя_директории
+Анализ на сколько доменов SSL
+echo | openssl s_client -showcerts -servername weekend-billiard.ru -connect weekend-billiard.ru:443 2>/dev/null | openssl x509 -inform pem -noout -text | grep -A1 "X509v3 Subject Alternative Name"
+
+Скорость отклика
+curl -so /dev/null -w '%{time_total}\n' -H 'Cache-Control: no-cache' npostroyka.ru
+
+
+Откуда, к чему, сколько
+logs n patria | grep vashisny.ru | awk '{print $6,$7,$13}' | sort | uniq -c | sort -rn | head
+
+
+Объем баз данных
+SELECT table_schema "database_name", sum( data_length + index_length )/1024/1024 "Data Base Size in MB" FROM information_schema.TABLES GROUP BY table_schema;
+
+
+rsync
+rsync --progress -avz -e ssh apache_access-log-0103-3004.txt siava85@92.53.96.32:~/
+rsync -rpPvt stroimas@188.225.17.51:~/public_html .
+
+
+Generating values with htpasswd
+bcrypt
+$ htpasswd -nbB myName myPassword
+myName:$2y$05$c4WoMPo3SXsafkva.HHa6uXQZWr7oboPiC2bT/r7q1BB8I2s0BRqC
+MD5
+$ htpasswd -nbm myName myPassword
+myName:$apr1$r31.....$HqJZimcKQFAMYayBlzkrA/
+SHA1
+$ htpasswd -nbs myName myPassword
+myName:{SHA}VBPuJHI7uixaa6LQGWx4s+5GKNE=
+CRYPT
+$ htpasswd -nbd myName myPassword
+myName:rqXexS6ZhobKA
+MD5
+$ openssl passwd -apr1 myPassword
+$apr1$qHDFfhPC$nITSVHgYbDAK1Y0acGRnY0
+CRYPT
+openssl passwd -crypt myPassword
+qQ5vTYO3c8dsU
+
+
+openssl x509 -noout -modulus -in certificate.crt | openssl md5
+openssl rsa -noout -modulus -in privateKey.key | openssl md5
+openssl req -noout -modulus -in CSR.csr | openssl md5
+
+логи медленных запросов
+
+mysql -e 'set global slow_query_log=1'
+
+
+проверка на pagespeed
+wget -4SO /dev/null https://gift-promo.ru 2>&1 | fgrep X-Page-Speed
+
+цикличные проверки
+for i in `seq 1 20`; do curl -I priority.spb.ru 2>/dev/null; sleep 1; done | grep X-Powered-By
+
+
+sed замена на примере кэша MODX
+sed -i 's/apple.devpastet.ru/iphonika.ru/g' ./cache/resource/web/resources/1.cache.php
+sed -i 's/utf8mb4_unicode_520_ci/utf8_general_ci/g' 
+sed -i 's/utf8mb4/utf8/g'
